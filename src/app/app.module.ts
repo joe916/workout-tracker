@@ -14,8 +14,11 @@ import { AuthGuard } from './core/auth.guard';
 import { AuthService } from './core/auth.service';
 import { UserService } from './core/user.service';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { MatTableModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -30,9 +33,16 @@ import { AppComponent } from './app.component';
     RouterModule.forRoot(rootRouterConfig, { useHash: false }),
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule, // imports firebase/firestore, only needed for database features
-    AngularFireAuthModule // imports firebase/auth, only needed for auth features
+    AngularFireAuthModule, BrowserAnimationsModule, // imports firebase/auth, only needed for auth features
+    MatTableModule
   ],
-  providers: [AuthService, UserService, UserResolver, AuthGuard],
+  providers: [
+    AuthService,
+    UserService,
+    UserResolver,
+    AuthGuard,
+    {provide: LocationStrategy, useClass: HashLocationStrategy}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

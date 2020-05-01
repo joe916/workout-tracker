@@ -1,27 +1,142 @@
 <nav class="navbar navbar-default navbar-static-top navbar-inverse">
   <div class="container">
-    <a (click)="logout()" class="navbar-text navbar-right navbar-link">Logout</a>
+    <a (click)="logout()" class="navbar-text navbar-right navbar-link" style="color:whitesmoke">Logout</a>
   </div>
 </nav>
-<h1 class="header">Logged User Page</h1>
 <div class="row">
-  <div class="col-md-4 col-md-offset-4">
-    <div class="card" style="width: 20rem;">
-      <img class="card-img-top image" [src]="user.image" *ngIf="user.image" alt="User image">
-      <img class="card-img-top image" src="https://via.placeholder.com/400x300" *ngIf="!user.image" alt="User image">
-      <div *ngIf='user.provider != "password"'class="card-body">
-        <h4 class="card-title">{{user.name}}</h4>
-        <p class="card-text">This is an example of Social Authentication using Firebase in an Angular 7 web app. </p>
+  <div class="col-xs-12">
+    <div style="text-align: center;">
+      <img class="card-img-top image" style="width: 20rem;margin-left: auto; margin-right: auto;" [src]="userInfo.photoURL" *ngIf="userInfo && userInfo.photoURL" alt="User image">
+      <h4 class="card-title">Welcome, {{userInfo ? userInfo.displayName : 'User'}}</h4>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12 col-md-6" style="text-align: center; padding:50px;">
+    <h3>Log Workout</h3>
+    <form class="container" [formGroup]="workoutForm" style="width: 300px; margin-top: 20px;">
+      <div class="form-group">
+        <label for="workout_type">Select workout</label>
+        <select id="workout_type" required class="custom-select custom-select-lg" aria-placeholder="test" formControlName="workoutId">
+          <option *ngFor="let workout of workoutService.workouts;" [ngValue]="workout.id">{{workout.name}}</option>
+        </select>
       </div>
-      <div *ngIf='user.provider == "password"'class="card-body">
-        <form [formGroup]="profileForm">
-          <div class="form-group">
-            <label>Your name</label>
-            <input type="text" formControlName="name" class="form-control" required>
-          </div>
-        </form>
-        <a (click)="save(profileForm.value)" class="btn btn-primary">Save</a>
+      <div class="form-group">
+        <label for="workout_count">Count</label>
+        <input id="workout_count" class="form-control" min="1" required type="number" placeholder="Count" formControlName="count">
+      </div>
+      <div *ngIf="workoutForm.dirty && !workoutForm.valid" style="color:gray">
+        Please add Workout Type and a valid Count
+      </div>
+      <button (click)="onSubmit($event)" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div *ngIf="userInfo && userInfo.uid" class="col-xs-12 col-md-6" style="text-align: center; padding:50px;">
+    <h3>My Workout Log</h3>
+    <table style="width:100%" mat-table [dataSource]="userWorkoutLogs[userInfo.uid]" class="mat-elevation-z8">
+
+      <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+
+      <!-- Position Column -->
+      <ng-container matColumnDef="workoutName">
+        <th mat-header-cell *matHeaderCellDef> Workout </th>
+        <td mat-cell *matCellDef="let element"> {{element.workoutName}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="logTime">
+        <th mat-header-cell *matHeaderCellDef> Time </th>
+        <td mat-cell *matCellDef="let element"> {{element.logTime}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="count">
+        <th mat-header-cell *matHeaderCellDef> Count </th>
+        <td mat-cell *matCellDef="let element"> {{element.count}} </td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="points">
+        <th mat-header-cell *matHeaderCellDef> Point </th>
+        <td mat-cell *matCellDef="let element"> {{(element.points).toFixed(2)}} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div style="margin-top: 20px;">
+      Total points: {{workoutService.getMyTotalPoints(userInfo.uid).toFixed(2)}}
+    </div>
+  </div>
+  <div class="col-xs-12 col-md-12" style="text-align: center; padding:50px;">
+    <h3>Leaderboard</h3>
+    <ul class="list-group">
+      <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData()" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
+        {{leaderBoardItem.name}}
+        <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="col-xs-12 col-md-12" *ngIf="selectedLeader">
+    <div class="col-xs-12" style="text-align: center; padding:50px;">
+      <h3>{{selectedLeaderName}}'s Workout Log</h3>
+      <table style="width:100%" mat-table [dataSource]="userWorkoutLogs[selectedLeader]" class="mat-elevation-z8">
+
+        <!--- Note that these columns can be defined in any order.
+              The actual rendered columns are set as a property on the row definition" -->
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="workoutName">
+          <th mat-header-cell *matHeaderCellDef> Workout </th>
+          <td mat-cell *matCellDef="let element"> {{element.workoutName}} </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="logTime">
+          <th mat-header-cell *matHeaderCellDef> Time </th>
+          <td mat-cell *matCellDef="let element"> {{element.logTime}} </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="count">
+          <th mat-header-cell *matHeaderCellDef> Count </th>
+          <td mat-cell *matCellDef="let element"> {{element.count}} </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="points">
+          <th mat-header-cell *matHeaderCellDef> Point </th>
+          <td mat-cell *matCellDef="let element"> {{(element.points).toFixed(2)}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div style="margin-top: 20px;">
+        Total points: {{workoutService.getMyTotalPoints(selectedLeader)}}
       </div>
     </div>
+  </div>
+  <div class="col-xs-12" style="text-align: center; padding:50px;">
+    <h3>Workout Conversion Rate</h3>
+    <table class="conversion-table">
+      <tr>
+        <th>Workout</th>
+        <th>Multiplier</th>
+      </tr>
+      <tr *ngFor="let workout of workoutService.workouts">
+        <td>{{workout.name}}</td>
+        <td>{{workout.multiplier}}</td>
+      </tr>
+    </table>
+    <!-- <ul class="list-group">
+      <li *ngFor="let workout of workoutService.workouts" class="list-group-item d-flex justify-content-between align-items-center">
+        {{workout.name}}
+        <span class="badge badge-primary badge-pill">{{workout.multiplier}}</span>
+      </li>
+    </ul> -->
   </div>
 </div>

@@ -4,7 +4,8 @@ import { AuthService } from '../core/auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { FirebaseUserModel } from '../core/user.model';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { WorkoutService } from '../core/workout.service';
 
 @Component({
   selector: 'page-user',
@@ -13,40 +14,41 @@ import { FirebaseUserModel } from '../core/user.model';
 })
 export class UserComponent implements OnInit{
 
-  user: FirebaseUserModel = new FirebaseUserModel();
-  profileForm: FormGroup;
+  workoutForm: FormGroup;
+  workouts = [];
+  userInfo;
+  myWorkouts;
+  userWorkoutLogs;
+  users;
+  displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points'];
+  selectedLeader;
+  selectedLeaderName;
 
   constructor(
     public userService: UserService,
     public authService: AuthService,
     private route: ActivatedRoute,
     private location : Location,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private db: AngularFirestore,
+    public workoutService: WorkoutService
   ) {
-
+    this.workoutService.getAllWorkouts();
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe(routeData => {
-      let data = routeData['data'];
-      if (data) {
-        this.user = data;
-        this.createForm(this.user.name);
-      }
-    })
-  }
-
-  createForm(name) {
-    this.profileForm = this.fb.group({
-      name: [name, Validators.required ]
+    this.userService.getCurrentUser().then((user) => {
+      this.userInfo = user;
+      this.userWorkoutLogs = this.workoutService.userWorkoutLogs;
+      this.workouts = this.workoutService.workouts;
+      this.users = this.workoutService.users;
     });
-  }
-
-  save(value){
-    this.userService.updateCurrentUser(value)
-    .then(res => {
-      console.log(res);
-    }, err => console.log(err))
+    this.workoutForm = this.fb.group(
+      {
+        workoutId: ['', Validators.required],
+        count: ['', Validators.min(1)]
+      }
+    );
   }
 
   logout(){
@@ -57,4 +59,29 @@ export class UserComponent implements OnInit{
       console.log("Logout error", error);
     });
   }
+
+  onSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let formData = this.workoutForm.value;
+    if (!this.workoutForm.valid) {
+      return;
+    }
+    formData.userId = this.userInfo.uid;
+    formData.displayName = this.userInfo.displayName;
+    formData.dateTime = Date.now();
+    this.workoutService.saveWorkout(formData).then((ref) => {
+      this.workoutForm.reset();
+    });
+  }
+
+  leaderBoardSelect(event, id, name) {
+    if (this.selectedLeader === id) {
+      this.selectedLeader = null;
+    } else {
+      this.selectedLeader = id;
+      this.selectedLeaderName = name;
+    }
+  }
+
 }

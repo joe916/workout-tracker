@@ -3,14 +3,18 @@
 // `ng build --env=prod` then `environment.prod.ts` will be used instead.
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
+import {config} from './firebase-config';
+
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBmNkRGMwyD_Z6sPYY3FtKI4H9w7kUzYi4",
-    authDomain: "cohesive-apogee-95023.firebaseapp.com",
-    databaseURL: "https://cohesive-apogee-95023.firebaseio.com",
-    projectId: "cohesive-apogee-95023",
-    storageBucket: "cohesive-apogee-95023.appspot.com",
-    messagingSenderId: "546552200902"
+    apiKey: config.apiKey,
+    authDomain: config.authDomain,
+    databaseURL: config.databaseURL,
+    projectId: config.projectId,
+    storageBucket: config.storageBucket,
+    messagingSenderId: config.messagingSenderId,
+    appId: config.appId,
+    measurementId: config.measurementId
   }
 };
