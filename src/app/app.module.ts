@@ -19,13 +19,15 @@ import { MatTableModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { WorkoutLogComponent } from './workout-log/workout-log.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     UserComponent,
-    RegisterComponent
+    RegisterComponent,
+    WorkoutLogComponent
   ],
   imports: [
     BrowserModule,

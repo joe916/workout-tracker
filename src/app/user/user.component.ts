@@ -20,17 +20,14 @@ export class UserComponent implements OnInit{
   myWorkouts;
   userWorkoutLogs;
   users;
-  displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points'];
   selectedLeader;
   selectedLeaderName;
 
   constructor(
     public userService: UserService,
     public authService: AuthService,
-    private route: ActivatedRoute,
     private location : Location,
     private fb: FormBuilder,
-    private db: AngularFirestore,
     public workoutService: WorkoutService
   ) {
     this.workoutService.getAllWorkouts();

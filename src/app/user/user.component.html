@@ -33,42 +33,7 @@
   </div>
   <div *ngIf="userInfo && userInfo.uid" class="col-xs-12 col-md-6" style="text-align: center; padding:50px;">
     <h3>My Workout Log</h3>
-    <table style="width:100%" mat-table [dataSource]="userWorkoutLogs[userInfo.uid]" class="mat-elevation-z8">
-
-      <!--- Note that these columns can be defined in any order.
-            The actual rendered columns are set as a property on the row definition" -->
-
-      <!-- Position Column -->
-      <ng-container matColumnDef="workoutName">
-        <th mat-header-cell *matHeaderCellDef> Workout </th>
-        <td mat-cell *matCellDef="let element"> {{element.workoutName}} </td>
-      </ng-container>
-
-      <!-- Name Column -->
-      <ng-container matColumnDef="logTime">
-        <th mat-header-cell *matHeaderCellDef> Time </th>
-        <td mat-cell *matCellDef="let element"> {{element.logTime}} </td>
-      </ng-container>
-
-      <!-- Weight Column -->
-      <ng-container matColumnDef="count">
-        <th mat-header-cell *matHeaderCellDef> Count </th>
-        <td mat-cell *matCellDef="let element"> {{element.count}} </td>
-      </ng-container>
-
-      <!-- Symbol Column -->
-      <ng-container matColumnDef="points">
-        <th mat-header-cell *matHeaderCellDef> Point </th>
-        <td mat-cell *matCellDef="let element"> {{(element.points).toFixed(2)}} </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-    <div style="margin-top: 20px;">
-      Total points: {{workoutService.getMyTotalPoints(userInfo.uid).toFixed(2)}}
-    </div>
+    <app-workout-log [selectedUserId]="userInfo.uid"></app-workout-log>
   </div>
   <div class="col-xs-12 col-md-12" style="text-align: center; padding:50px;">
     <h3>Leaderboard</h3>
@@ -82,42 +47,7 @@
   <div class="col-xs-12 col-md-12" *ngIf="selectedLeader">
     <div class="col-xs-12" style="text-align: center; padding:50px;">
       <h3>{{selectedLeaderName}}'s Workout Log</h3>
-      <table style="width:100%" mat-table [dataSource]="userWorkoutLogs[selectedLeader]" class="mat-elevation-z8">
-
-        <!--- Note that these columns can be defined in any order.
-              The actual rendered columns are set as a property on the row definition" -->
-
-        <!-- Position Column -->
-        <ng-container matColumnDef="workoutName">
-          <th mat-header-cell *matHeaderCellDef> Workout </th>
-          <td mat-cell *matCellDef="let element"> {{element.workoutName}} </td>
-        </ng-container>
-
-        <!-- Name Column -->
-        <ng-container matColumnDef="logTime">
-          <th mat-header-cell *matHeaderCellDef> Time </th>
-          <td mat-cell *matCellDef="let element"> {{element.logTime}} </td>
-        </ng-container>
-
-        <!-- Weight Column -->
-        <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef> Count </th>
-          <td mat-cell *matCellDef="let element"> {{element.count}} </td>
-        </ng-container>
-
-        <!-- Symbol Column -->
-        <ng-container matColumnDef="points">
-          <th mat-header-cell *matHeaderCellDef> Point </th>
-          <td mat-cell *matCellDef="let element"> {{(element.points).toFixed(2)}} </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <div style="margin-top: 20px;">
-        Total points: {{workoutService.getMyTotalPoints(selectedLeader)}}
-      </div>
+      <app-workout-log [selectedUserId]="selectedLeader"></app-workout-log>
     </div>
   </div>
   <div class="col-xs-12" style="text-align: center; padding:50px;">
@@ -132,11 +62,5 @@
         <td>{{workout.multiplier}}</td>
       </tr>
     </table>
-    <!-- <ul class="list-group">
-      <li *ngFor="let workout of workoutService.workouts" class="list-group-item d-flex justify-content-between align-items-center">
-        {{workout.name}}
-        <span class="badge badge-primary badge-pill">{{workout.multiplier}}</span>
-      </li>
-    </ul> -->
   </div>
 </div>
