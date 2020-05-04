@@ -11,10 +11,17 @@ export class WorkoutLogComponent implements OnInit {
   @Input() selectedUserId;
 
   displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points'];
+  individualLog = true;
 
   constructor(public workoutService: WorkoutService) { }
 
   ngOnInit() {
+  }
+
+  switchLog(event, value) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.individualLog = value;
   }
 
 }

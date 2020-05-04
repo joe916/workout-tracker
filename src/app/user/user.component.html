@@ -7,7 +7,9 @@
   <div class="col-xs-12">
     <div style="text-align: center;">
       <img class="card-img-top image" style="width: 20rem;margin-left: auto; margin-right: auto;" [src]="userInfo.photoURL" *ngIf="userInfo && userInfo.photoURL" alt="User image">
-      <h4 class="card-title">Welcome, {{userInfo ? userInfo.displayName : 'User'}}</h4>
+      <h4 class="card-title" *ngIf="!challengeId">{{userInfo ? userInfo.displayName : 'User'}}</h4>
+      <h4 class="card-title" *ngIf="challengeId">Hello {{userInfo ? userInfo.displayName : 'User'}} <br> Welcome to {{challengeName}} </h4>
+      <!-- <h3 *ngIf="challengeId"></h3> -->
     </div>
   </div>
 </div>
@@ -24,6 +26,7 @@
       <div class="form-group">
         <label for="workout_count">Count</label>
         <input id="workout_count" class="form-control" min="1" required type="number" placeholder="Count" formControlName="count">
+        <div style="color:gray">Note: For 30 secs of Planking, enter 1</div>
       </div>
       <div *ngIf="workoutForm.dirty && !workoutForm.valid" style="color:gray">
         Please add Workout Type and a valid Count
@@ -38,7 +41,7 @@
   <div class="col-xs-12 col-md-12" style="text-align: center; padding:50px;">
     <h3>Leaderboard</h3>
     <ul class="list-group">
-      <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData()" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
+      <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData(); let i = index;" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
         {{leaderBoardItem.name}}
         <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
       </li>

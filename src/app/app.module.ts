@@ -20,6 +20,7 @@ import { MatTableModule } from '@angular/material';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { WorkoutLogComponent } from './workout-log/workout-log.component';
+import { ChallengeComponent } from './challenge/challenge.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { WorkoutLogComponent } from './workout-log/workout-log.component';
     LoginComponent,
     UserComponent,
     RegisterComponent,
-    WorkoutLogComponent
+    WorkoutLogComponent,
+    ChallengeComponent
   ],
   imports: [
     BrowserModule,

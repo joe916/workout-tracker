@@ -1,0 +1,25 @@
+<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+  <div class="container">
+    <h2 style="color:whitesmoke">Quarantine Workout Challenge</h2>
+  </div>
+</nav>
+<div class="row">
+  <div class="col-xs-12">
+    <div style="text-align: center;">
+      <h3>Current Challenges</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <div style="text-align: center; max-width:500px; margin-left:auto; margin-right: auto;">
+      <ul class="list-group">
+        <li *ngFor="let challenge of challengeService.challenges" class="list-group-item d-flex justify-content-between align-items-center">
+          <div style="font-weight: bold">{{challenge.name}}</div>
+          <div>{{challenge.startDate}} - {{challenge.endDate}}</div>
+          <button class="btn btn-primary" (click)="joinChallenge($event, challenge.id, challenge.name)">Join</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

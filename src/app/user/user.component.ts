@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../core/user.service';
 import { AuthService } from '../core/auth.service';
-import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { WorkoutService } from '../core/workout.service';
+import { ActivatedRoute } from '@angular/router';
+import { ChallengeService } from '../core/challenge.service';
 
 @Component({
   selector: 'page-user',
@@ -22,15 +22,23 @@ export class UserComponent implements OnInit{
   users;
   selectedLeader;
   selectedLeaderName;
+  challengeId;
+  challengeName;
 
   constructor(
     public userService: UserService,
     public authService: AuthService,
     private location : Location,
     private fb: FormBuilder,
-    public workoutService: WorkoutService
+    public workoutService: WorkoutService,
+    private activatedRoute: ActivatedRoute,
+    private challengeService: ChallengeService
   ) {
     this.workoutService.getAllWorkouts();
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.challengeId = params['challengeId'] ? parseInt(params['challengeId']) : "";
+      this.challengeName = params['challengeName'];
+    });
   }
 
   ngOnInit(): void {
@@ -67,6 +75,17 @@ export class UserComponent implements OnInit{
     formData.userId = this.userInfo.uid;
     formData.displayName = this.userInfo.displayName;
     formData.dateTime = Date.now();
+    if (this.challengeId) {
+      const challenge = this.challengeService.getChallenge(this.challengeId);
+      formData.challengeId = challenge.id;
+      if (formData.dateTime > (challenge.end.seconds * 1000)) {
+        alert('Challenge is already complete');
+        return;
+      } else if (formData.dateTime < (challenge.start.seconds * 1000)) {
+        alert('Challenge has not started yet');
+        return;
+      }
+    }
     this.workoutService.saveWorkout(formData).then((ref) => {
       this.workoutForm.reset();
     });
