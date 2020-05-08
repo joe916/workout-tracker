@@ -81,13 +81,28 @@ export class WorkoutService {
     return _.reduce(_.pluck(this.userWorkoutLogs[userId], 'points'), function(memo, num){ return memo + num; }, 0);
   }
 
-  getLeaderBoardData() {
+  getMyWorkoutPoints(userId) {
+    let workoutsOnly = _.filter(this.userWorkoutLogs[userId], (item) => {
+      return item.workoutId !== 3; //steps
+    });
+    return _.reduce(_.pluck(workoutsOnly, 'points'), function(memo, num){ return memo + num; }, 0);
+  }
+
+  getMyStepsPoints(userId) {
+    let stepsOnly = _.filter(this.userWorkoutLogs[userId], (item) => {
+      return item.workoutId === 3; //steps
+    });
+    return _.reduce(_.pluck(stepsOnly, 'count'), function(memo, num){ return memo + num; }, 0);
+  }
+
+  getLeaderBoardData(type) {
+    let fn = this.getWorkoutFn(type).bind(this);
     let leaderBoard = [];
     _.each(this.users, (user) => {
       let item = {
         id: user,
         name: this.usersList[user],
-        points: this.getMyTotalPoints(user)
+        points: fn(user)
       };
       leaderBoard.push(item);
     });
@@ -95,6 +110,19 @@ export class WorkoutService {
       return b.points - a.points;
     });
     return leaderBoard;
+  }
+
+  getWorkoutFn(type) {
+    switch (type) {
+      case 'workout':
+        return this.getMyWorkoutPoints;
+        break;
+      case 'steps':
+        return this.getMyStepsPoints;
+        break;
+      default:
+        return this.getMyTotalPoints;
+    }
   }
 
   getMyCombinedWorkouts(userId) {

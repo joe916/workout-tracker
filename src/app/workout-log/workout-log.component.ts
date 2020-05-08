@@ -11,7 +11,7 @@ export class WorkoutLogComponent implements OnInit {
   @Input() selectedUserId;
 
   displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points'];
-  individualLog = true;
+  individualLog = false;
 
   constructor(public workoutService: WorkoutService) { }
 

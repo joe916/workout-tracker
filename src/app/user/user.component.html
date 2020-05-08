@@ -9,6 +9,7 @@
       <img class="card-img-top image" style="width: 20rem;margin-left: auto; margin-right: auto;" [src]="userInfo.photoURL" *ngIf="userInfo && userInfo.photoURL" alt="User image">
       <h4 class="card-title" *ngIf="!challengeId">{{userInfo ? userInfo.displayName : 'User'}}</h4>
       <h4 class="card-title" *ngIf="challengeId">Hello {{userInfo ? userInfo.displayName : 'User'}} <br> Welcome to {{challengeName}} </h4>
+      <h5>"Be the hunter, not the hunted" - Mr. T</h5>
       <!-- <h3 *ngIf="challengeId"></h3> -->
     </div>
   </div>
@@ -40,12 +41,38 @@
   </div>
   <div class="col-xs-12 col-md-12" style="text-align: center; padding:50px;">
     <h3>Leaderboard</h3>
-    <ul class="list-group">
-      <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData(); let i = index;" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
-        {{leaderBoardItem.name}}
-        <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
-      </li>
-    </ul>
+    <nav class="nav nav-pills nav-justified">
+      <a class="nav-item nav-link" [ngClass]="{'active': leaderBoardType == 'challenge'}" href="#" (click)="switchLeaderboard($event, 'challenge')"><i class="material-icons">emoji_events</i></a>
+      <a class="nav-item nav-link" [ngClass]="{'active': leaderBoardType == 'workout'}" href="#" (click)="switchLeaderboard($event, 'workout')"><i class="material-icons">fitness_center</i></a>
+      <a class="nav-item nav-link" [ngClass]="{'active': leaderBoardType == 'steps'}" href="#" (click)="switchLeaderboard($event, 'steps')"><i class="material-icons">directions_walk</i></a>
+    </nav>
+    <div *ngIf="leaderBoardType == 'challenge'">
+      <h4>Overall Challenge Leaderboard</h4>
+      <ul class="list-group">
+        <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData('challenge'); let i = index;" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
+          {{leaderBoardItem.name}}
+          <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="leaderBoardType == 'steps'">
+      <h4>Steps only Leaderboard</h4>
+      <ul class="list-group">
+        <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData('steps'); let i = index;" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
+          {{leaderBoardItem.name}}
+          <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="leaderBoardType == 'workout'">
+      <h4>Workout only Leaderboard</h4>
+      <ul class="list-group">
+        <li *ngFor="let leaderBoardItem of workoutService.getLeaderBoardData('workout'); let i = index;" (click)="leaderBoardSelect($event, leaderBoardItem.id, leaderBoardItem.name)" class="list-group-item d-flex justify-content-between align-items-center">
+          {{leaderBoardItem.name}}
+          <span class="badge badge-primary badge-pill">{{ leaderBoardItem.points.toFixed(2) }}</span>
+        </li>
+      </ul>
+    </div>
   </div>
   <div class="col-xs-12 col-md-12" *ngIf="selectedLeader">
     <div class="col-xs-12" style="text-align: center; padding:50px;">

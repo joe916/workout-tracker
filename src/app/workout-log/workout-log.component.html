@@ -1,6 +1,6 @@
 <nav class="nav nav-pills nav-justified">
-  <a class="nav-item nav-link" ngClass="{'active': individualLog}" href="#" (click)="switchLog($event, true)">Individual Log</a>
-  <a class="nav-item nav-link" ngClass="{'active': !individualLog}" href="#" (click)="switchLog($event, false)">Combined Log</a>
+  <a class="nav-item nav-link" [ngClass]="{'active': individualLog}" href="#" (click)="switchLog($event, true)">Individual Log</a>
+  <a class="nav-item nav-link" [ngClass]="{'active': !individualLog}" href="#" (click)="switchLog($event, false)">Combined Log</a>
 </nav>
 <table style="width:100%" *ngIf="individualLog" mat-table [dataSource]="workoutService.userWorkoutLogs[selectedUserId]" class="mat-elevation-z8">
 

@@ -24,6 +24,7 @@ export class UserComponent implements OnInit{
   selectedLeaderName;
   challengeId;
   challengeName;
+  leaderBoardType = 'challenge';
 
   constructor(
     public userService: UserService,
@@ -98,6 +99,12 @@ export class UserComponent implements OnInit{
       this.selectedLeader = id;
       this.selectedLeaderName = name;
     }
+  }
+
+  switchLeaderboard(event, name) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.leaderBoardType = name;
   }
 
 }
