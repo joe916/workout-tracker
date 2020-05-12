@@ -4,7 +4,7 @@ import { AuthService } from '../core/auth.service';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { WorkoutService } from '../core/workout.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChallengeService } from '../core/challenge.service';
 
 @Component({
@@ -33,7 +33,8 @@ export class UserComponent implements OnInit{
     private fb: FormBuilder,
     public workoutService: WorkoutService,
     private activatedRoute: ActivatedRoute,
-    private challengeService: ChallengeService
+    private challengeService: ChallengeService,
+    private router: Router
   ) {
     this.workoutService.getAllWorkouts();
     this.activatedRoute.queryParams.subscribe(params => {
@@ -55,6 +56,15 @@ export class UserComponent implements OnInit{
         count: ['', Validators.min(1)]
       }
     );
+  }
+
+  isCurrentChallenge() {
+    if (this.challengeId) {
+      let challenge = this.challengeService.getChallenge(this.challengeId);
+      return challenge.currentChallenge;
+    } else {
+      return false;
+    }
   }
 
   logout(){
@@ -105,6 +115,12 @@ export class UserComponent implements OnInit{
     event.preventDefault();
     event.stopPropagation();
     this.leaderBoardType = name;
+  }
+
+  navigateToChallenges(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.router.navigate(['/challenges']);
   }
 
 }
