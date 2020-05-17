@@ -15,6 +15,7 @@ export class WorkoutService {
   users = [];
   usersList = [];
   challengeId;
+  workoutsLoaded = false;
 
   constructor(
     public db: AngularFirestore,
@@ -73,6 +74,7 @@ export class WorkoutService {
         _.each(this.users, (userId) => {
           this.userWorkoutLogs[userId] = _.where(workoutLogFormatted, {userId: userId}).sort((a,b) => { return a.dateTime - b.dateTime; });
         });
+        this.workoutsLoaded = true;
       });
     })
   }
@@ -133,6 +135,13 @@ export class WorkoutService {
       combinedWorkouts.push({ 'workoutName': [group[0].workoutName], 'count': total });
     })
     return combinedWorkouts;
+  }
+
+  clearWorkouts() {
+    this.workoutLogs = [];
+    this.userWorkoutLogs = {};
+    this.challengeId = '';
+    this.workoutsLoaded = false;
   }
 
 }

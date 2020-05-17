@@ -17,7 +17,7 @@
     </div>
   </div>
 </div>
-<div class="row col-xs-12">
+<div class="row col-xs-12" *ngIf="workoutService.workoutsLoaded">
   <div *ngIf="isCurrentChallenge()" class="col-xs-12 col-md-6" style="text-align: center; padding:50px;">
     <h3>Log Workout</h3>
     <form class="container" [formGroup]="workoutForm" style="width: 300px; margin-top: 20px;">

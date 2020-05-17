@@ -43,4 +43,8 @@ export class ChallengeService {
   getPreviousChallenges() {
     return _.where(this.challenges, {'previousChallenge': true});
   }
+
+  createChallenge(challenge) {
+    return this.db.collection('challenges').add(challenge);
+  }
 }

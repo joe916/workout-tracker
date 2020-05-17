@@ -15,11 +15,7 @@ import { ChallengeService } from '../core/challenge.service';
 export class UserComponent implements OnInit{
 
   workoutForm: FormGroup;
-  workouts = [];
   userInfo;
-  myWorkouts;
-  userWorkoutLogs;
-  users;
   selectedLeader;
   selectedLeaderName;
   challengeId;
@@ -36,7 +32,6 @@ export class UserComponent implements OnInit{
     private challengeService: ChallengeService,
     private router: Router
   ) {
-    this.workoutService.getAllWorkouts();
     this.activatedRoute.queryParams.subscribe(params => {
       this.challengeId = params['challengeId'] ? parseInt(params['challengeId']) : "";
       this.challengeName = params['challengeName'];
@@ -46,9 +41,7 @@ export class UserComponent implements OnInit{
   ngOnInit(): void {
     this.userService.getCurrentUser().then((user) => {
       this.userInfo = user;
-      this.userWorkoutLogs = this.workoutService.userWorkoutLogs;
-      this.workouts = this.workoutService.workouts;
-      this.users = this.workoutService.users;
+      this.workoutService.getAllWorkouts();
     });
     this.workoutForm = this.fb.group(
       {
@@ -120,6 +113,7 @@ export class UserComponent implements OnInit{
   navigateToChallenges(event) {
     event.preventDefault();
     event.stopPropagation();
+    this.workoutService.clearWorkouts();
     this.router.navigate(['/challenges']);
   }
 
