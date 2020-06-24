@@ -9,19 +9,27 @@ import { WorkoutService } from '../core/workout.service';
 export class WorkoutLogComponent implements OnInit {
 
   @Input() selectedUserId;
+  @Input() allowDelete;
 
-  displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points'];
+  displayedColumns: string[] = ['workoutName', 'logTime', 'count', 'points', 'delete'];
   individualLog = false;
 
   constructor(public workoutService: WorkoutService) { }
 
   ngOnInit() {
+    this.displayedColumns = !this.allowDelete ? ['workoutName', 'logTime', 'count', 'points'] : ['workoutName', 'logTime', 'count', 'points', 'delete'];
   }
 
   switchLog(event, value) {
     event.preventDefault();
     event.stopPropagation();
     this.individualLog = value;
+  }
+
+  deleteLog(event, logItem) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.workoutService.deleteLog(logItem);
   }
 
 }

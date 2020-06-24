@@ -3,6 +3,8 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import * as _ from 'underscore';
 import * as moment from 'moment';
+import { ChallengeService } from './challenge.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +15,16 @@ export class WorkoutService {
   workoutLogs;
   userWorkoutLogs = {};
   users = [];
-  usersList = [];
   challengeId;
+  challenge;
+  allUsers;
   workoutsLoaded = false;
 
   constructor(
     public db: AngularFirestore,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private challengeService: ChallengeService,
+    private userService: UserService
     ) {
       this.activatedRoute.queryParams.subscribe(params => {
         if (this.challengeId !== params['challengeId']) {
@@ -29,18 +34,19 @@ export class WorkoutService {
       });
     }
 
-  getWorkouts() {
+  getInitData() {
     return new Promise<any>((resolve, reject) => {
       if (!_.isEmpty(this.workouts)) { resolve(this.workouts); }
-      let workouts = [];
-      var workouts_snapshot = this.db.collection('workouts').get();
-      workouts_snapshot.forEach((item:any) => {
-        item.docs.forEach((workoutItem) => {
-          workouts.push(workoutItem.data());
+      this.db.collection('workouts').valueChanges().subscribe((items) => {
+        this.workouts = items;
+        this.challengeService.getChallengeAsync(this.challengeId).then((challenge:any) => {
+          this.challenge = challenge;
+          this.userService.getUsers().then((users) => {
+            this.allUsers = users;
+            resolve();
+          });
         });
-      });
-      this.workouts = workouts;
-      resolve(this.workouts);
+      })
     });
   }
 
@@ -49,34 +55,35 @@ export class WorkoutService {
   }
 
   getAllWorkouts() {
+    if (!this.challengeId) { return; }
     this.userWorkoutLogs = {};
-    this.getWorkouts().then(() => {
-      if (this.challengeId) {
-        this.workoutLogs = this.db.collection('workout-logs', ref => {
-          return ref.where('challengeId', '==', this.challengeId);
+    this.getInitData().then(() => {
+      this.db.collection('workout-logs').valueChanges().subscribe((items) => {
+        this.workoutLogs = items;
+        let logs = _.filter(this.workoutLogs, (item) => {
+          return (item.dateTime >= this.challenge.start.seconds * 1000 && item.dateTime <= this.challenge.end.seconds * 1000) &&
+                  _.contains(this.challenge.participants, item.userId);
         });
-      } else {
-        this.workoutLogs = this.db.collection('workout-logs');
-      }
-      this.workoutLogs.valueChanges().subscribe((items) => {
-        let workoutLogFormatted = _.map(items, (item:any) => {
-          let workout = _.where(this.workouts, {id: item.workoutId})[0];
-          item.workoutName = workout.name;
-          item.logTime = moment(item.dateTime).format('LLL');
-          item.points = item.count * workout.multiplier;
-          return item;
+        let workoutLogFormatted = _.map(logs, (item:any) => {
+          return this.formatWorkoutLogItem(item);
         });
-        this.users = _.uniq(_.pluck(workoutLogFormatted, 'userId'));
-        _.each(this.users, (user:any) => {
-          let item = _.where(workoutLogFormatted, {userId: user})[0];
-          this.usersList[user] = item.displayName || "No name";
+        this.users = _.map(this.challenge.participants, (id) => {
+          return _.where(this.allUsers, {uid: id})[0];
         });
-        _.each(this.users, (userId) => {
-          this.userWorkoutLogs[userId] = _.where(workoutLogFormatted, {userId: userId}).sort((a,b) => { return a.dateTime - b.dateTime; });
+        _.each(this.users, (user) => {
+          this.userWorkoutLogs[user.uid] = _.where(workoutLogFormatted, {userId: user.uid}).sort((a,b) => { return a.dateTime - b.dateTime; });
         });
         this.workoutsLoaded = true;
-      });
+      })
     })
+  }
+
+  formatWorkoutLogItem(item) {
+    let workout = _.where(this.workouts, {id: item.workoutId})[0];
+    item.workoutName = workout.name;
+    item.logTime = moment(item.dateTime).format('LLL');
+    item.points = item.count * workout.multiplier;
+    return item;
   }
 
   getMyTotalPoints(userId) {
@@ -102,9 +109,9 @@ export class WorkoutService {
     let leaderBoard = [];
     _.each(this.users, (user) => {
       let item = {
-        id: user,
-        name: this.usersList[user],
-        points: fn(user)
+        id: user.uid,
+        name: user.displayName,
+        points: fn(user.uid)
       };
       leaderBoard.push(item);
     });
@@ -142,6 +149,20 @@ export class WorkoutService {
     this.userWorkoutLogs = {};
     this.challengeId = '';
     this.workoutsLoaded = false;
+  }
+
+  deleteLog(logItem) {
+    const log = this.db.collection('workout-logs', ref => {
+      return ref
+        .where('userId', '==', logItem.userId)
+        .where('dateTime', '==', logItem.dateTime)
+        .where('workoutId', '==', logItem.workoutId);
+    });
+    let subscription = log.snapshotChanges().subscribe((res: any) => {
+      let id = res[0] && res[0].payload.doc && res[0].payload.doc.id;
+      this.db.collection('workout-logs').doc(id).delete();
+      subscription.unsubscribe();
+    });
   }
 
 }

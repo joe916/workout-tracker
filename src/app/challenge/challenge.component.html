@@ -3,6 +3,35 @@
     <h2 style="color:whitesmoke">Quarantine Workout Challenge</h2>
   </div>
 </nav>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div style="text-align: center;">
+      <a class="btn btn-secondary" href (click)="createChallenge($event)"><b>+</b> Create Your Own Challenge</a>
+    </div>
+    <div style="text-align: center;" *ngIf="showChallengeForm">
+      <h4>Create Challenge</h4>
+      <form class="container" style="border: 1px solid gray;" [formGroup]="challengeForm" style="max-width: 600px; margin-top: 20px;">
+        <div class="form-group">
+          <label for="workout_type">Challenge Name</label>
+          <input class="form-control" type="text" formControlName="name"/>
+        </div>
+        <div class="form-group">
+          <label for="workout_type">Start</label>
+          <input class="form-control" type="date" formControlName="startDate"/>
+          <input class="form-control" type="time" formControlName="startTime"/>
+        </div>
+        <div class="form-group">
+          <label for="workout_type">End</label>
+          <input class="form-control" type="date" formControlName="endDate"/>
+          <input class="form-control" type="time" formControlName="endTime"/>
+        </div>
+        <div *ngIf="challengeFormInvalid">Error creating challenge. Please check all fields are valid.</div>
+        <button (click)="onSubmit($event)" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-xs-12">
     <div style="text-align: center;">
@@ -12,13 +41,17 @@
 </div>
 <div class="row">
   <div class="col-xs-12">
-    <div style="text-align: center; max-width:500px; margin-left:auto; margin-right: auto;">
+    <div style="text-align: center; max-width:1000px; margin-left:auto; margin-right: auto;">
       <ul class="list-group">
-        <li *ngFor="let challenge of challengeService.getCurrentChallenges()" class="list-group-item d-flex justify-content-between align-items-center">
-          <div style="font-weight: bold">{{challenge.name}}</div>
-          <div>{{challenge.startDate}} - {{challenge.endDate}}</div>
-          <!-- <button class="btn btn-primary" (click)="joinChallenge($event, challenge.id, challenge.name)">View</button> -->
-          <button class="btn btn-primary" (click)="joinChallenge($event, challenge.id, challenge.name)">Join</button>
+        <li *ngFor="let challenge of challengeService.getCurrentChallenges()" style="text-align:left" class="col-xs-12 list-group-item d-flex justify-content-between align-items-center">
+          <div class="col-xs-3" style="font-weight: bold">{{challenge.name}}</div>
+          <div class="col-xs-3" ><b>Owner:</b> {{challenge.owner || 'Admin'}}</div>
+          <div class="col-xs-3" >{{challenge.startDate}} - {{challenge.endDate}}</div>
+          <div style="text-align: right;" class="col-xs-3" >
+            <button class="btn btn-danger" *ngIf="challenge.ownerId === user.uid" (click)="deleteChallenge($event, challenge.id, challenge.name)">Delete</button>
+            <button class="btn btn-primary" style="margin-left:10px" *ngIf="!challenge.userInChallenge" (click)="joinChallenge($event, challenge.id, challenge.name)">Join</button>
+            <button class="btn btn-secondary" style="margin-left:10px" (click)="viewChallenge($event, challenge.id, challenge.name)">View</button>
+          </div>
         </li>
       </ul>
     </div>
@@ -33,11 +66,15 @@
 </div>
 <div class="row">
   <div class="col-xs-12">
-    <div style="text-align: center; max-width:500px; margin-left:auto; margin-right: auto;">
+    <div style="text-align: center; max-width:1000px; margin-left:auto; margin-right: auto;">
       <ul class="list-group">
-        <li *ngFor="let challenge of challengeService.getFutureChallenges()" class="list-group-item d-flex justify-content-between align-items-center">
-          <div style="font-weight: bold">{{challenge.name}}</div>
-          <div>{{challenge.startDate}} - {{challenge.endDate}}</div>
+        <li *ngFor="let challenge of challengeService.getFutureChallenges()" class="col-xs-12 list-group-item d-flex justify-content-between align-items-center">
+          <div class="col-xs-3" style="font-weight: bold">{{challenge.name}}</div>
+          <div class="col-xs-3" *ngIf="challenge.owner">Owner: {{challenge.owner || "Admin"}}</div>
+          <div class="col-xs-3" >{{challenge.startDate}} - {{challenge.endDate}}</div>
+          <div style="text-align: right;" class="col-xs-3">
+            <button class="btn btn-danger" *ngIf="challenge.ownerId === user.uid" (click)="deleteChallenge($event, challenge.id, challenge.name)">Delete</button>
+          </div>
         </li>
       </ul>
     </div>
@@ -52,12 +89,15 @@
 </div>
 <div class="row">
   <div class="col-xs-12">
-    <div style="text-align: center; max-width:500px; margin-left:auto; margin-right: auto;">
+    <div style="text-align: center; max-width:1000px; margin-left:auto; margin-right: auto;">
       <ul class="list-group">
         <li *ngFor="let challenge of challengeService.getPreviousChallenges()" class="list-group-item d-flex justify-content-between align-items-center">
-          <div style="font-weight: bold">{{challenge.name}}</div>
-          <div>{{challenge.startDate}} - {{challenge.endDate}}</div>
-          <button class="btn btn-primary" (click)="joinChallenge($event, challenge.id, challenge.name)">View</button>
+          <div class="col-xs-3" style="font-weight: bold">{{challenge.name}}</div>
+          <div class="col-xs-3" *ngIf="challenge.owner">Owner: {{challenge.owner}}</div>
+          <div class="col-xs-3">{{challenge.startDate}} - {{challenge.endDate}}</div>
+          <div style="text-align: right;" class="col-xs-3">
+            <button class="btn btn-secondary" (click)="viewChallenge($event, challenge.id, challenge.name)">View</button>
+          </div>
         </li>
       </ul>
     </div>

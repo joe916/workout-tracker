@@ -60,6 +60,11 @@ export class UserComponent implements OnInit{
     }
   }
 
+  isUserInChallenge() {
+    let challenge = this.challengeService.getChallenge(this.challengeId);
+    return challenge.userInChallenge;
+  }
+
   logout(){
     this.authService.doLogout()
     .then((res) => {
@@ -115,6 +120,12 @@ export class UserComponent implements OnInit{
     event.stopPropagation();
     this.workoutService.clearWorkouts();
     this.router.navigate(['/challenges']);
+  }
+
+  joinChallenge(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.challengeService.joinChallenge(this.challengeId, this.userInfo.uid);
   }
 
 }
